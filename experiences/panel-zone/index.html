@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 360 Tour</title>
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../css/tour.css">
+
+<!-- ===================================================================
+     YOUR TOUR — edit only between the two TOUR markers below.
+     Photos (equirectangular 2:1) go in the  photos/  folder next to this
+     file. Easiest way to edit: set  editing: "hash"  and open this page
+     with #edit at the end of the address, place the points, then paste the
+     generated block back here. Fields: id, name, file, start{yaw,pitch,fov},
+     spots[{yaw,pitch,label,to,kind:"behind"}].
+     =================================================================== -->
+<script id="tour">
+var SETTINGS = {
+  title: "Lab 360 Tour",
+  intro: "Drag to look around the test setup and scroll to zoom. The round red points mark elements of the setup: click one to open a detailed 360° view of it (a dashed point is hidden behind the specimen). Use the “Main view” button to return to the overview, and the full-screen button for a larger view.",
+  editing: false,
+  preload: "all"
+};
+
+var SCENES = [
+  {
+    id: "overview",
+    name: "Test setup — overview",
+    file: "Main_view.jpg",
+    start: { yaw: 0.6, pitch: -22.4, fov: 96 },
+    spots: [
+      { yaw: 0.8, pitch: 9, label: "Main actuator", to: "top_accurator" },
+      { yaw: 44.2, pitch: -20.2, label: "Lateral resisting system", to: "east_lateral_bracing" },
+      { yaw: -39, pitch: -28.8, label: "West connection", to: "west_connection" },
+      { yaw: 1.2, pitch: -34.5, label: "Front view", to: "panel_zone" },
+      { yaw: 0.9, pitch: -58.7, label: "Pin connection", to: "pin" },
+      { yaw: 36.9, pitch: -28.6, label: "East connection", to: "east_connection" },
+      { yaw: 1, pitch: 38.8, label: "Top view", to: "top_view" },
+      { yaw: 110.1, pitch: -45.7, label: "Operator desk", to: "operators_desk" },
+      { yaw: 1.1, pitch: -26.4, label: "Rear view", to: "back_panel_zone", kind: "behind" },
+      { yaw: 49, pitch: -44.8, label: "Lateral actuator", to: "east_accurator" },
+      { yaw: -105.3, pitch: -44.9, label: "Old specimen", to: "old_specimen" },
+      { yaw: -128.2, pitch: -39.9, label: "The photographers", to: "photographers" },
+      { yaw: 8.8, pitch: -82.6, label: "DIC", to: "dic" }
+    ]
+  },
+  {
+    id: "west_connection",
+    name: "West_connection",
+    file: "West_connection.jpg",
+    spots: [
+
+    ]
+  },
+  {
+    id: "top_view",
+    name: "Top_view",
+    file: "Top_view.jpg",
+    start: { yaw: -3.9, pitch: -53.1, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "east_connection",
+    name: "East_connection",
+    file: "East_connection.jpg",
+    start: { yaw: -11.1, pitch: 11.4, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "back_panel_zone",
+    name: "Back_panel_zone",
+    file: "Back_panel_zone.jpg",
+    start: { yaw: 1.4, pitch: 1.8, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "dic",
+    name: "DIC",
+    file: "DIC.jpg",
+    start: { yaw: -2.7, pitch: 2.9, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "east_accurator",
+    name: "East_accurator",
+    file: "East_accurator.jpg",
+    start: { yaw: 0.1, pitch: -6.9, fov: 100 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "east_lateral_bracing",
+    name: "East_lateral_bracing",
+    file: "East_lateral_bracing.jpg",
+    start: { yaw: -0.8, pitch: -27.4, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "main_view",
+    name: "Main_view",
+    file: "Main_view.jpg",
+    start: { yaw: 0.6, pitch: -22.4, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "old_specimen",
+    name: "Old_specimen",
+    file: "Old_specimen.jpg",
+    start: { yaw: -16.5, pitch: -11.7, fov: 76 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "operators_desk",
+    name: "Operators_desk",
+    file: "Operators_desk.jpg",
+    start: { yaw: -5, pitch: -20.9, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "panel_zone",
+    name: "Panel_zone",
+    file: "Panel_zone.jpg",
+    start: { yaw: -2.4, pitch: -3.8, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "photographers",
+    name: "photographers",
+    file: "photographers.jpg",
+    start: { yaw: -6.6, pitch: -29.1, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "pin",
+    name: "Pin",
+    file: "Pin.jpg",
+    start: { yaw: -2.7, pitch: -14.5, fov: 96 },
+    spots: [
+
+    ]
+  },
+  {
+    id: "top_accurator",
+    name: "Top_accurator",
+    file: "Top_accurator.jpg",
+    start: { yaw: -1.4, pitch: -11.8, fov: 96 },
+    spots: [
+
+    ]
+  }
+];
+</script>
+</head>
+<body data-root="../../" data-crumb="Panel zone test">
+<div id="site-top"></div>
+<main>
+  <div class="container">
+    <a class="btn-back" href="../../index.html">← Back to experiments</a>
+    <div class="tour">
+      <header class="exp-head">
+        <h1>Lab 360 Tour</h1>
+        <p></p>
+      </header>
+        <div class="frame" id="frame">
+          <canvas id="gl"></canvas>
+          <div id="spots"></div>
+          <p class="hint" id="hint">drag · scroll to zoom · H = main view · F = full screen</p>
+          <div class="caption"><span class="n" id="cap-n"></span><span id="cap-name"></span></div>
+          <button type="button" class="fs" id="fs" title="Full screen" aria-label="Full screen">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 6V1h5M15 6V1h-5M1 10v5h5M15 10v5h-5"/></svg>
+          </button>
+          <button type="button" class="home" id="home" title="Back to the main panorama (H)">⌂ Main view</button>
+          <button type="button" class="back" id="back">← Back</button>
+          <div class="compass" aria-hidden="true"><i id="needle"></i></div>
+          <div class="veil" id="veil"></div>
+          <div class="loader" id="loader">
+            <strong id="loader-title">Preparing the tour</strong>
+            <div class="bar"><i id="loader-bar"></i></div>
+            <span id="loader-count"></span>
+          </div>
+          <div class="missing" id="missing">
+            <strong id="missing-file"></strong>
+            <span>Browsers refuse to read files sitting next to a page opened from a folder.<br>
+            Point at the <code>photos/</code> folder once and the tour runs — nothing is sent anywhere.</span>
+            <span class="pick">
+              <label>Choose the photos folder<input type="file" id="pickdir" webkitdirectory directory multiple></label>
+              <label class="ghost">Or pick the files<input type="file" id="pickfiles" accept="image/*" multiple></label>
+            </span>
+          </div>
+        </div>
+      
+        <div class="tools">
+          <span id="status"></span>
+          <span class="grow"></span>
+          <label class="filebtn">Load photos from my computer<input type="file" id="files" accept="image/*" multiple></label>
+          <button type="button" id="toggle-edit">Edit tour</button>
+        </div>
+      
+        <div class="editor" id="editor">
+          <h2>Points in “<span id="ed-scene"></span>”</h2>
+          <p class="note">Select a point, then click in the panorama to move it there. <em>Opens</em> chooses which 360 the point leads to.</p>
+          <div class="row" id="spotlist"></div>
+          <div class="tools" style="border:0;padding:0">
+            <button type="button" id="add-spot">Add point here</button>
+            <button type="button" id="del-spot">Delete point</button>
+            <span class="grow"></span>
+            <button type="button" id="set-start">Open this panorama on the current view</button>
+          </div>
+      
+          <h2>Panoramas</h2>
+          <div class="row" id="scenelist"></div>
+      
+          <h2>Save your work</h2>
+          <ol class="steps">
+            <li>Copy the block below.</li>
+            <li>Open <code>index.html</code> in a text editor and paste it between <code>/* TOUR-START */</code> and <code>/* TOUR-END */</code>.</li>
+            <li>Make sure every photo sits in the <code>photos/</code> folder with the file name shown above.</li>
+          </ol>
+          <textarea id="code" readonly aria-label="Tour configuration"></textarea>
+          <div class="tools" style="border:0;padding:0">
+            <button type="button" id="copy">Copy the block</button>
+            <button type="button" id="download">Download it as a file</button>
+          </div>
+        </div>
+    </div>
+  </div>
+</main>
+<div id="site-foot"></div>
+<script src="../../js/site.js"></script>
+<script src="../../js/tour.js"></script>
+</body>
+</html>

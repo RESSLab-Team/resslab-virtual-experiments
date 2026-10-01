@@ -1,0 +1,171 @@
+/* Virtual-tour viewer styles (extracted unchanged from the original page,
+   re-tinted to the EPFL palette). Used by every experience page. */
+.tour { --ground:#fff; --surface:#fff; --ink:#212121; --ink-soft:#707070; --line:#e6e6e6;
+        --accent:#ff0000; --accent-soft:rgba(255,0,0,.2); }
+
+.frame {
+  position: relative; overflow: hidden; border-radius: 0;
+  background: #0A0E12; aspect-ratio: 16/9; border: 1px solid var(--line);
+  cursor: grab; touch-action: none;
+}
+.frame.dragging { cursor: grabbing; }
+.frame.editing { cursor: crosshair; }
+.frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.spot { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; cursor: pointer; transition: opacity .35s; }
+.spot .ring {
+  position: absolute; inset: 0; border: 2px solid var(--accent); border-radius: 50%;
+  background: var(--accent-soft); box-shadow: 0 0 0 1px rgba(0,0,0,.4), 0 2px 14px rgba(0,0,0,.4);
+  transition: transform .2s ease, background .2s ease;
+}
+.spot .pulse { position: absolute; inset: 0; border: 2px solid var(--accent); border-radius: 50%; animation: pulse 2.8s ease-out infinite; }
+@keyframes pulse { 0% { transform: scale(1); opacity: .5; } 70%,100% { transform: scale(1.85); opacity: 0; } }
+.spot:hover .ring, .spot:focus-visible .ring { transform: scale(1.15); background: rgba(255,0,0,.45); }
+.spot:focus-visible { outline: none; }
+.spot:focus-visible .ring { box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--accent); }
+.spot.sel .ring { background: var(--accent); }
+.spot.link .ring { border-style: solid; }
+.spot.behind .ring {
+  border-style: dashed; background: transparent;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.3);
+  opacity: .82;
+}
+.spot.behind .pulse { display: none; }
+.spot.behind .glyph { font-size: 13px; opacity: .9; }
+.spot.behind:hover .ring { background: rgba(255,0,0,.28); opacity: 1; }
+.spot .glyph {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  color: #fff; font: 700 15px/1 Arial, sans-serif; text-shadow: 0 1px 4px rgba(0,0,0,.6);
+  pointer-events: none;
+}
+.spot .tip {
+  position: absolute; left: 50%; top: -9px; transform: translate(-50%,-100%);
+  padding: 4px 9px; background: rgba(10,14,18,.9); color: #F2F6F8; border-radius: 3px;
+  font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .18s;
+}
+.spot:hover .tip, .spot:focus-visible .tip, .spot.sel .tip { opacity: 1; }
+.frame.closed .spot { opacity: 0; pointer-events: none; }
+
+.caption, .back, .hint, .compass, .missing, .fs { position: absolute; color: #F2F6F8; }
+.fs {
+  left: 16px; top: 16px; width: 34px; height: 34px; display: grid; place-items: center;
+  padding: 0; background: rgba(10,14,18,.74); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 3px; cursor: pointer; backdrop-filter: blur(6px);
+}
+.fs:hover { background: rgba(255,0,0,.9); }
+.fs svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.frame:fullscreen { aspect-ratio: auto; width: 100vw; height: 100vh; border: 0; border-radius: 0; }
+.caption {
+  left: 16px; bottom: 16px; display: flex; align-items: center; gap: 10px;
+  padding: 7px 13px; background: rgba(10,14,18,.74); border: 1px solid rgba(255,255,255,.16);
+  border-radius: 3px; backdrop-filter: blur(6px); pointer-events: none;
+}
+.caption .n { font-family: Consolas, "Courier New", monospace; font-size: 11px; color: var(--accent); }
+.back {
+  right: 16px; top: 16px; display: none; align-items: center; gap: 7px;
+  padding: 8px 13px; background: rgba(10,14,18,.74); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 3px; font: 500 13px/1 Arial, sans-serif; color: #F2F6F8;
+  cursor: pointer; backdrop-filter: blur(6px);
+}
+.back.on { display: inline-flex; }
+.home {
+  position: absolute; right: 16px; top: 16px; display: none; align-items: center; gap: 7px;
+  padding: 8px 13px; background: rgba(10,14,18,.74); border: 1px solid rgba(255,255,255,.2);
+  border-radius: 3px; font: 500 13px/1 Arial, sans-serif; color: #F2F6F8;
+  cursor: pointer; backdrop-filter: blur(6px);
+}
+.home.on { display: inline-flex; }
+.home:hover { background: rgba(255,0,0,.9); }
+.back:hover { background: rgba(255,0,0,.9); }
+.hint {
+  right: 16px; bottom: 68px; font-family: Consolas, "Courier New", monospace; font-size: 11px;
+  letter-spacing: .06em; text-shadow: 0 1px 8px rgba(0,0,0,.85); pointer-events: none; transition: opacity .3s;
+}
+.frame.moved .hint { opacity: 0; }
+.compass { right: 16px; bottom: 16px; width: 42px; height: 42px; border: 1px solid rgba(255,255,255,.28); border-radius: 50%; background: rgba(10,14,18,.5); pointer-events: none; }
+.compass i { position: absolute; left: 50%; top: 50%; width: 2px; height: 15px; margin: -15px 0 0 -1px; background: var(--accent); transform-origin: 50% 100%; border-radius: 1px; }
+.veil {
+  position: absolute; inset: 0; background: #0A0E12; z-index: 5;
+  opacity: 1; pointer-events: none; transition: opacity .13s ease;
+}
+.veil.clear { opacity: 0; }
+.missing {
+  inset: 0; display: none; place-content: center; text-align: center; gap: 10px;
+  padding: 30px; background: #10161C; z-index: 6;
+}
+.loader {
+  position: absolute; inset: 0; z-index: 7; display: none;
+  place-content: center; justify-items: center; gap: 14px;
+  background: #0A0E12; color: #E7EEF2; text-align: center;
+}
+.loader.on { display: grid; }
+.loader strong { font: 600 15px/1.3 Arial, sans-serif; }
+.loader .bar { width: min(280px, 60vw); height: 3px; background: rgba(255,255,255,.16); border-radius: 2px; overflow: hidden; }
+.loader .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s ease; }
+.loader span { font-family: Consolas, "Courier New", monospace; font-size: 11px; letter-spacing: .08em; color: #93A3AD; }
+.missing .pick {
+  display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 4px;
+}
+.missing label {
+  font: 500 13px/1 Arial, sans-serif; padding: 9px 14px;
+  background: var(--accent); color: #fff; border-radius: 3px; cursor: pointer;
+}
+.missing label.ghost { background: none; color: #E7EEF2; border: 1px solid rgba(255,255,255,.35); }
+.missing label:hover { filter: brightness(1.08); }
+.missing input[type=file] { display: none; }
+.missing.on { display: grid; }
+.missing, .missing * { pointer-events: auto; touch-action: auto; }
+.missing strong { font-family: Arial, sans-serif; font-size: 17px; }
+.missing span { color: #9FAEB8; font-size: 13.5px; }
+.missing code { font-family: Consolas, "Courier New", monospace; color: var(--accent); }
+
+.tools {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+  padding-top: 12px; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 13px;
+}
+.tools button, .tools label.filebtn {
+  font: 500 13px/1 Arial, sans-serif; padding: 7px 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 3px;
+  color: var(--ink); cursor: pointer;
+}
+.tools button:hover, .tools label.filebtn:hover { border-color: var(--accent); color: var(--accent); }
+.tools .grow { flex: 1; }
+.tools input[type=file] { display: none; }
+
+.editor { display: none; flex-direction: column; gap: 12px; }
+.editor.on { display: flex; }
+.editor h2 { font-family: Arial, sans-serif; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; margin: 0; }
+.editor p.note { margin: 0; color: var(--ink-soft); font-size: 13px; }
+.row { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 6px; }
+.card {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 3px;
+}
+.card.sel { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.card .i { font-family: Consolas, "Courier New", monospace; font-size: 11px; color: var(--ink-soft); }
+.card input, .card select {
+  flex: 1; min-width: 0; font: inherit; font-size: 13px; color: var(--ink);
+  background: none; border: 0; border-bottom: 1px dashed var(--line); padding: 2px 0;
+}
+.card select { border: 1px solid var(--line); border-radius: 3px; padding: 3px; flex: 0 1 40%; }
+.card input:focus, .card select:focus { outline: none; border-color: var(--accent); }
+.card .pos { font-family: Consolas, "Courier New", monospace; font-size: 10.5px; color: var(--ink-soft); }
+textarea {
+  width: 100%; height: 190px; font-family: Consolas, "Courier New", monospace; font-size: 12px;
+  padding: 10px; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 3px; resize: vertical;
+}
+ol.steps { margin: 0; padding-left: 20px; color: var(--ink-soft); font-size: 13.5px; }
+ol.steps code { font-family: Consolas, "Courier New", monospace; color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .spot { transition-duration: .001s !important; } .pulse { animation: none; } }
+
+/* the Main view button moves down only when the Back button is shown above it */
+.frame:has(.back.on) .home { top: 60px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: -4px 0 0; font-size: 13px; color: var(--ink-soft); }
+.legend kbd {
+  display: inline-block; min-width: 22px; margin-right: 6px; padding: 1px 6px; text-align: center;
+  font: 700 12px/18px Arial, sans-serif; color: var(--ink); background: #f5f5f5;
+  border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 3px;
+}
+@media (hover: none) { .legend { display: none; } }
