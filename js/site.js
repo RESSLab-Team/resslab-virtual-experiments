@@ -7,6 +7,7 @@
   var crumb = document.body.getAttribute("data-crumb");
   var LAB = "Resilient Steel Structures Laboratory (RESSLab)";
   var LAB_URL = "https://www.epfl.ch/labs/resslab/";
+  var FACILITIES_URL = "https://www.epfl.ch/labs/resslab/experimental-facilities/";
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
@@ -25,7 +26,7 @@
         '<a class="lab-title" href="' + root + 'index.html">Virtual experiments</a>' +
       '</div></div>' +
       '<nav class="crumbs" aria-label="Breadcrumb"><div class="container">' +
-        '<a href="' + LAB_URL + '">' + LAB + '</a><span class="sep">›</span>' +
+        '<a href="' + FACILITIES_URL + '">' + LAB + '</a><span class="sep">›</span>' +
         (crumb ? '<a href="' + root + 'index.html">Virtual experiments</a><span class="sep">›</span>' + esc(crumb)
                : "Virtual experiments") +
       '</div></nav>';
