@@ -20,9 +20,8 @@ var SETTINGS = {
   title: "Lab 360 Tour",
   intro: "Drag to look around the test setup and scroll to zoom. The round red points mark elements of the setup: click one to open a detailed 360° view of it (a dashed point is hidden behind the specimen). Use the “Main view” button to return to the overview, and the full-screen button for a larger view.",
   editing: false,
-  // Where the photos are. Default: the photos/ folder next to this page.
-  // To use an external server (e.g. EPFL S3), uncomment and set the folder URL:
-  // photosBase: "https://<bucket-url>/panel-zone/",
+  // Where the photos are fetched from (EPFL CDN). Use "photos/" for a folder next to this page.
+  photosBase: "https://enacit4r-cdn.epfl.ch/resslab/virtual_tour/photos/",
   preload: "all"
 };
 
@@ -30,7 +29,7 @@ var SCENES = [
   {
     id: "overview",
     name: "Test setup — overview",
-    file: "Main_view.jpg",
+    file: "Main_view.webp",
     start: { yaw: 0.6, pitch: -22.4, fov: 96 },
     spots: [
       { yaw: 0.8, pitch: 9, label: "Main actuator", to: "top_accurator" },
@@ -51,7 +50,7 @@ var SCENES = [
   {
     id: "west_connection",
     name: "West_connection",
-    file: "West_connection.jpg",
+    file: "West_connection.webp",
     spots: [
 
     ]
@@ -59,7 +58,7 @@ var SCENES = [
   {
     id: "top_view",
     name: "Top_view",
-    file: "Top_view.jpg",
+    file: "Top_view.webp",
     start: { yaw: -3.9, pitch: -53.1, fov: 96 },
     spots: [
 
@@ -68,7 +67,7 @@ var SCENES = [
   {
     id: "east_connection",
     name: "East_connection",
-    file: "East_connection.jpg",
+    file: "East_connection.webp",
     start: { yaw: -11.1, pitch: 11.4, fov: 96 },
     spots: [
 
@@ -77,7 +76,7 @@ var SCENES = [
   {
     id: "back_panel_zone",
     name: "Back_panel_zone",
-    file: "Back_panel_zone.jpg",
+    file: "Back_panel_zone.webp",
     start: { yaw: 1.4, pitch: 1.8, fov: 96 },
     spots: [
 
@@ -86,7 +85,7 @@ var SCENES = [
   {
     id: "dic",
     name: "DIC",
-    file: "DIC.jpg",
+    file: "DIC.webp",
     start: { yaw: -2.7, pitch: 2.9, fov: 96 },
     spots: [
 
@@ -95,7 +94,7 @@ var SCENES = [
   {
     id: "east_accurator",
     name: "East_accurator",
-    file: "East_accurator.jpg",
+    file: "East_accurator.webp",
     start: { yaw: 0.1, pitch: -6.9, fov: 100 },
     spots: [
 
@@ -104,7 +103,7 @@ var SCENES = [
   {
     id: "east_lateral_bracing",
     name: "East_lateral_bracing",
-    file: "East_lateral_bracing.jpg",
+    file: "East_lateral_bracing.webp",
     start: { yaw: -0.8, pitch: -27.4, fov: 96 },
     spots: [
 
@@ -113,7 +112,7 @@ var SCENES = [
   {
     id: "main_view",
     name: "Main_view",
-    file: "Main_view.jpg",
+    file: "Main_view.webp",
     start: { yaw: 0.6, pitch: -22.4, fov: 96 },
     spots: [
 
@@ -122,7 +121,7 @@ var SCENES = [
   {
     id: "old_specimen",
     name: "Old_specimen",
-    file: "Old_specimen.jpg",
+    file: "Old_specimen.webp",
     start: { yaw: -16.5, pitch: -11.7, fov: 76 },
     spots: [
 
@@ -131,7 +130,7 @@ var SCENES = [
   {
     id: "operators_desk",
     name: "Operators_desk",
-    file: "Operators_desk.jpg",
+    file: "Operators_desk.webp",
     start: { yaw: -5, pitch: -20.9, fov: 96 },
     spots: [
 
@@ -140,7 +139,7 @@ var SCENES = [
   {
     id: "panel_zone",
     name: "Panel_zone",
-    file: "Panel_zone.jpg",
+    file: "Panel_zone.webp",
     start: { yaw: -2.4, pitch: -3.8, fov: 96 },
     spots: [
 
@@ -149,7 +148,7 @@ var SCENES = [
   {
     id: "photographers",
     name: "photographers",
-    file: "photographers.jpg",
+    file: "photographers.webp",
     start: { yaw: -6.6, pitch: -29.1, fov: 96 },
     spots: [
 
@@ -158,7 +157,7 @@ var SCENES = [
   {
     id: "pin",
     name: "Pin",
-    file: "Pin.jpg",
+    file: "Pin.webp",
     start: { yaw: -2.7, pitch: -14.5, fov: 96 },
     spots: [
 
@@ -167,7 +166,7 @@ var SCENES = [
   {
     id: "top_accurator",
     name: "Top_accurator",
-    file: "Top_accurator.jpg",
+    file: "Top_accurator.webp",
     start: { yaw: -1.4, pitch: -11.8, fov: 96 },
     spots: [
 
