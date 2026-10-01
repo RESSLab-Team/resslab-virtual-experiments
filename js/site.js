@@ -21,12 +21,12 @@
       '<div class="site-header"><div class="container">' +
         '<a class="logo" href="https://www.epfl.ch/" aria-label="EPFL"><img src="' + root + 'assets/epfl-logo.svg" alt="EPFL"></a>' +
         // RESSLab logo: put the file at assets/resslab-logo.webp (the text shows until it exists)
-        '<a class="lab-logo" href="' + root + 'index.html" aria-label="RESSLab">' +
+        '<a class="lab-logo" href="' + LAB_URL + '" aria-label="RESSLab">' +
           '<img src="' + root + 'assets/resslab-logo.webp" alt="RESSLab" onerror="this.replaceWith(document.createTextNode(\'RESSLab\'))"></a>' +
         '<a class="lab-title" href="' + root + 'index.html">Virtual experiments</a>' +
       '</div></div>' +
       '<nav class="crumbs" aria-label="Breadcrumb"><div class="container">' +
-        '<a href="' + FACILITIES_URL + '">' + LAB + '</a><span class="sep">›</span>' +
+        '<a href="' + FACILITIES_URL + '">Experimental Facilities</a><span class="sep">›</span>' +
         (crumb ? '<a href="' + root + 'index.html">Virtual experiments</a><span class="sep">›</span>' + esc(crumb)
                : "Virtual experiments") +
       '</div></nav>';
