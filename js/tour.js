@@ -245,7 +245,10 @@
       delete imgCache[file];              // let a later pick retry
       rec.waiting.splice(0).forEach(function (f) { f(null); });
     };
-    rec.img.src = localFiles[file] || ("photos/" + file);
+    // photosBase (in SETTINGS) can point to another server, e.g. an S3 bucket
+    var base = SETTINGS.photosBase || "photos/";
+    if (base.slice(-1) !== "/") base += "/";
+    rec.img.src = localFiles[file] || (base + encodeURIComponent(file));
   }
 
   var loader = document.getElementById("loader");
@@ -627,6 +630,8 @@
       '  title: "' + String(SETTINGS.title || "Lab 360 Tour").replace(/"/g, '\\"') + '",\n' +
       '  intro: "' + String(SETTINGS.intro || "").replace(/"/g, '\\"') + '",\n' +
       "  editing: " + (typeof SETTINGS.editing === "string" ? '"' + SETTINGS.editing + '"' : SETTINGS.editing === false ? "false" : "true") + ",\n" +
+      (SETTINGS.photosBase ? '  photosBase: "' + SETTINGS.photosBase + '",
+' : "") +
       "  preload: " + (SETTINGS.preload === false ? "false" : "true") +
       "\n};\n\n";
     var out = head + "var SCENES = [\n" + SCENES.map(function (s) {
