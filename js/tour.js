@@ -85,7 +85,12 @@
   // "all": everything is decoded and sent to the graphics card before the
   // tour opens, behind a progress bar — afterwards nothing happens in the
   // background ever again. false: each panorama is prepared when opened.
-  var PRELOAD_ALL = SETTINGS.preload !== false;
+  // SETTINGS.preload:
+  //   "background" (default)  the tour opens as soon as the first panorama is ready,
+  //                           the others are prepared quietly afterwards and then stay in memory
+  //   "all"                   everything is prepared before the tour opens
+  //   false                   each panorama is prepared when it is opened
+  var PRELOAD = SETTINGS.preload === false ? "none" : (SETTINGS.preload === "all" ? "all" : "background");
   var MAX_TEXTURES = 4;      // panoramas kept ready when preload is off
   var lru = [];
   var currentTex = null;
@@ -138,6 +143,19 @@
     cb(null);
   }
 
+  /* Every panorama has a progress value (0-100) that the loader can show,
+     whoever started the work. */
+  function report(rec, pct) {
+    rec.pct = pct;
+    rec.listeners.slice().forEach(function (f) { f(pct); });
+  }
+  function watch(file, fn) {
+    var r = imgCache[file];
+    if (!r) return function () {};
+    r.listeners.push(fn);
+    return function () { var k = r.listeners.indexOf(fn); if (k >= 0) r.listeners.splice(k, 1); };
+  }
+
   /* progressive = spread over animation frames, for panoramas prepared in the
      background; otherwise done in one go, hidden behind the fade. */
   function buildTexture(file, cb, progressive) {
@@ -146,14 +164,27 @@
     if (rec.tex) { cb(true); return; }
     if (rec.building) { rec.building.push(cb); return; }
     rec.building = [cb];
+    while (gl.getError() !== gl.NO_ERROR) { /* clear old errors */ }
 
     var img = rec.img;
     var max = gl.getParameter(gl.MAX_TEXTURE_SIZE), w = 2048;
     while (w * 2 <= img.width && w * 2 <= max) w *= 2;
+    if (rec.maxW) w = Math.min(w, rec.maxW);
     var h = w / 2;
 
     var done = function (ok, t) {
-      if (ok) { rec.tex = t; lru.push(file); evict(file); }
+      if (ok && gl.getError() !== gl.NO_ERROR) ok = false;   // upload refused / graphics memory full
+      if (!ok && w > 2048) {
+        // not enough graphics memory: try again with a texture half as wide
+        console.warn("[tour] " + file + ": " + w + " px texture failed, retrying at " + (w / 2) + " px");
+        if (t) gl.deleteTexture(t);
+        rec.maxW = w / 2;
+        var pending = rec.building; rec.building = null;
+        buildTexture(file, function (ok2) { pending.forEach(function (f) { f(ok2); }); }, progressive);
+        return;
+      }
+      if (!ok) console.warn("[tour] " + file + ": could not build the texture");
+      if (ok) { rec.tex = t; lru.push(file); evict(file); report(rec, 100); }
       else if (t) gl.deleteTexture(t);
       if (currentTex) gl.bindTexture(gl.TEXTURE_2D, currentTex);
       var waiting = rec.building; rec.building = null;
@@ -162,6 +193,7 @@
 
     if (!progressive) {
       var t = newTexture(w, h);
+      report(rec, 40);
       var put = function (source) {
         try { gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGB, gl.UNSIGNED_BYTE, source); done(true, t); }
         catch (err) { done(false, t); }
@@ -179,11 +211,12 @@
     // one horizontal strip per frame: no single long freeze
     var STRIPS = 8;
     var tex = newTexture(w, h);
-    var k = 0, failed = false;
+    var k = 0, failed = gl.getError() !== gl.NO_ERROR;
     (function nextStrip() {
       if (failed) { done(false, tex); return; }
       if (k >= STRIPS) { done(true, tex); return; }
-      if (drag || swapping) { setTimeout(nextStrip, 220); return; }   // hands off while the viewer moves
+      // hands off while the viewer moves, unless a scene change is waiting for this panorama
+      if ((drag || swapping) && !rec.urgent) { setTimeout(nextStrip, 220); return; }
       var sy = Math.round(img.height * k / STRIPS);
       var sh = Math.round(img.height * (k + 1) / STRIPS) - sy;
       var dy = Math.round(h * k / STRIPS);
@@ -203,6 +236,7 @@
         } catch (err) { failed = true; }
         if (currentTex) gl.bindTexture(gl.TEXTURE_2D, currentTex);
         k++;
+        report(rec, 15 + 85 * k / STRIPS);
         window.requestAnimationFrame(function () { window.requestAnimationFrame(nextStrip); });
       });
     })();
@@ -233,22 +267,32 @@
     var hit = imgCache[file];
     if (hit && hit.done) { cb(hit.ok ? hit.img : null); return; }
     if (hit) { hit.waiting.push(cb); return; }
-    var rec = { done: false, ok: false, img: new Image(), waiting: [cb] };
+    var rec = { done: false, ok: false, img: null, waiting: [cb], listeners: [], pct: 0, tex: null };
     imgCache[file] = rec;
-    rec.img.crossOrigin = "anonymous";
-    rec.img.onload = function () {
-      rec.done = true; rec.ok = true;
-      rec.waiting.splice(0).forEach(function (f) { f(rec.img); });
-    };
-    rec.img.onerror = function () {
-      rec.done = true; rec.ok = false;
-      delete imgCache[file];              // let a later pick retry
-      rec.waiting.splice(0).forEach(function (f) { f(null); });
-    };
     // photosBase (in SETTINGS) can point to another server, e.g. an S3 bucket
     var base = SETTINGS.photosBase || "photos/";
     if (base.slice(-1) !== "/") base += "/";
-    rec.img.src = localFiles[file] || (base + encodeURIComponent(file));
+    var url = localFiles[file] || (base + encodeURIComponent(file));
+    var tries = 0, MAX_TRIES = 3;      // a failed download is retried twice
+
+    (function attempt() {
+      var img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = function () {
+        rec.img = img; rec.done = true; rec.ok = true;
+        report(rec, 15);
+        rec.waiting.splice(0).forEach(function (f) { f(img); });
+      };
+      img.onerror = function () {
+        tries++;
+        console.warn("[tour] download failed (" + tries + "/" + MAX_TRIES + "): " + url);
+        if (tries < MAX_TRIES) { setTimeout(attempt, 1000 * tries); return; }
+        rec.done = true; rec.ok = false;
+        delete imgCache[file];              // let a later pick retry
+        rec.waiting.splice(0).forEach(function (f) { f(null); });
+      };
+      img.src = url;
+    })();
   }
 
   var loader = document.getElementById("loader");
@@ -256,24 +300,28 @@
   var loaderCount = document.getElementById("loader-count");
   var loaderTitle = document.getElementById("loader-title");
 
-  function loaderShow(done, total) {
+  // the loader only shows a percentage
+  function loaderPercent(pct, title) {
+    var p = Math.max(0, Math.min(100, Math.round(pct)));
     loader.classList.add("on");
-    loaderBar.style.width = (total ? Math.round(done / total * 100) : 0) + "%";
-    loaderCount.textContent = "panorama " + Math.min(done + 1, total) + " of " + total;
+    if (title) loaderTitle.textContent = title;
+    loaderBar.style.width = p + "%";
+    loaderCount.textContent = p + " %";
   }
   function loaderHide() { loader.classList.remove("on"); }
 
-  /* Everything is fetched and prepared once, before the tour opens.
-     After this, switching panorama is instant and nothing runs in the
-     background. */
+  /* Before the tour opens: the first panorama only ("background"), or all of
+     them ("all"). Once prepared, a panorama stays in memory: going back to it
+     is instant. */
   function bootLoad(cb) {
-    if (!PRELOAD_ALL) { cb(); return; }
-    var files = [];
-    SCENES.forEach(function (sc) { if (files.indexOf(sc.file) < 0) files.push(sc.file); });
+    var all = [], files = [];
+    SCENES.forEach(function (sc) { if (all.indexOf(sc.file) < 0) all.push(sc.file); });
+    if (PRELOAD === "all") files = all.slice();
+    else if (all.length) files = [SCENES[0].file];
     if (!files.length) { cb(); return; }
-    MAX_TEXTURES = Math.max(MAX_TEXTURES, files.length);   // keep them all resident
+    if (PRELOAD !== "none") MAX_TEXTURES = Math.max(MAX_TEXTURES, all.length);   // keep them all resident
     var i = 0, failed = 0;
-    loaderShow(0, files.length);
+    loaderPercent(0, "Preparing the tour");
     (function next() {
       if (i >= files.length) {
         loaderHide();
@@ -282,14 +330,35 @@
       }
       var file = files[i];
       getImage(file, function (img) {
-        var step = function () { i++; loaderShow(i, files.length); setTimeout(next, 0); };
+        var stop = function () {};
+        var step = function () { stop(); i++; setTimeout(next, 0); };
         if (!img) { failed++; step(); return; }
+        stop = watch(file, function (p) { loaderPercent((i * 100 + p) / files.length); });
         buildTexture(file, step, true);
       });
     })();
   }
 
-  function pumpPreload() {}      // nothing runs in the background any more
+  /* "background": once the tour is open, the other panoramas are prepared one
+     at a time, pausing while the viewer is being dragged or a scene is changing. */
+  var pumping = false;
+  function pumpPreload() {
+    if (PRELOAD !== "background" || pumping) return;
+    pumping = true;
+    var queue = [];
+    SCENES.forEach(function (sc) { if (queue.indexOf(sc.file) < 0) queue.push(sc.file); });
+    (function next() {
+      var file = queue.shift();
+      if (!file) { pumping = false; return; }
+      var rec = imgCache[file];
+      if (rec && rec.tex) { next(); return; }
+      if (drag || swapping) { queue.unshift(file); setTimeout(next, 400); return; }
+      getImage(file, function (img) {
+        if (!img) { setTimeout(next, 0); return; }
+        buildTexture(file, function () { setTimeout(next, 150); }, true);
+      });
+    })();
+  }
 
   var veil = document.getElementById("veil");
   var swapping = false;
@@ -333,13 +402,26 @@
     veil.classList.remove("clear");
     var rec = imgCache[s.file];
     var cached = rec && rec.done && rec.ok && rec.tex;
-    var ready = null, veiled = false;
+    var ready = null, veiled = false, shown = false, unwatch = function () {}, timer = null;
     getImage(s.file, function (img) {
       if (!img) { ready = { img: null }; go(); return; }
-      buildTexture(s.file, function () { ready = { img: img }; go(); });
+      imgCache[s.file].urgent = true;
+      buildTexture(s.file, function () { ready = { img: img }; go(); }, true);
     });
+    // a panorama that is not ready yet: show its progress after a short delay
+    if (!cached) timer = setTimeout(function () {
+      shown = true;
+      var r = imgCache[s.file];
+      loaderPercent(r ? r.pct : 0, "Loading panorama");
+      unwatch = watch(s.file, function (p) { loaderPercent(p); });
+    }, 350);
     setTimeout(function () { veiled = true; go(); }, cached ? 40 : 150);
-    function go() { if (ready && veiled) apply(ready.img); }
+    function go() {
+      if (!(ready && veiled)) return;
+      clearTimeout(timer); unwatch();
+      if (shown) loaderHide();
+      apply(ready.img);
+    }
   }
 
   function goTo(id) {
@@ -529,7 +611,7 @@
     currentTex = null;
     var cur = scene < 0 ? 0 : scene;
     scene = -1;
-    bootLoad(function () { loadScene(cur); renderEditor(); });
+    bootLoad(function () { loadScene(cur); renderEditor(); setTimeout(pumpPreload, 1500); });
     if (added) status.textContent = added + " panorama" + (added > 1 ? "s" : "") + " added — place your points, then copy the block";
   }
 
@@ -631,7 +713,7 @@
       '  intro: "' + String(SETTINGS.intro || "").replace(/"/g, '\\"') + '",\n' +
       "  editing: " + (typeof SETTINGS.editing === "string" ? '"' + SETTINGS.editing + '"' : SETTINGS.editing === false ? "false" : "true") + ",\n" +
       (SETTINGS.photosBase ? '  photosBase: "' + SETTINGS.photosBase + '",\n' : "") +
-      "  preload: " + (SETTINGS.preload === false ? "false" : "true") +
+      "  preload: " + (SETTINGS.preload === false ? "false" : typeof SETTINGS.preload === "string" ? '"' + SETTINGS.preload + '"' : "true") +
       "\n};\n\n";
     var out = head + "var SCENES = [\n" + SCENES.map(function (s) {
       var spots = (s.spots || []).map(function (sp) {
@@ -719,5 +801,6 @@
   bootLoad(function (ok) {
     loadScene(0);
     if (!ok) showMissing(true, SCENES[0] && SCENES[0].file);
+    setTimeout(pumpPreload, 1500);
   });
 })();
