@@ -630,8 +630,7 @@
       '  title: "' + String(SETTINGS.title || "Lab 360 Tour").replace(/"/g, '\\"') + '",\n' +
       '  intro: "' + String(SETTINGS.intro || "").replace(/"/g, '\\"') + '",\n' +
       "  editing: " + (typeof SETTINGS.editing === "string" ? '"' + SETTINGS.editing + '"' : SETTINGS.editing === false ? "false" : "true") + ",\n" +
-      (SETTINGS.photosBase ? '  photosBase: "' + SETTINGS.photosBase + '",
-' : "") +
+      (SETTINGS.photosBase ? '  photosBase: "' + SETTINGS.photosBase + '",\n' : "") +
       "  preload: " + (SETTINGS.preload === false ? "false" : "true") +
       "\n};\n\n";
     var out = head + "var SCENES = [\n" + SCENES.map(function (s) {
